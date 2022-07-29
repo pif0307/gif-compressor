@@ -1,1 +1,1 @@
-cat - | echo `gifsicle -I | head -n 1 | awk '{print $3}'`
+cat - | echo `$1 -I | head -n 1 | awk '{print $3}'`

@@ -1,5 +1,6 @@
 "use strict";
 const execa = require("execa");
+const path = require("path");
 const gifsicle = require("gifsicle");
 const isGif = require("is-gif");
 
@@ -21,11 +22,15 @@ module.exports = (opts) => async (buf) => {
     args.push("--unoptimize");
 
     const frameCount = (
-      await execa("./src/get_frame_count.sh", [], {
-        encoding: "utf8",
-        input: buf,
-        timeout: opts.timeout,
-      })
+      await execa(
+        path.resolve(__filename, "../get_frame_count.sh"),
+        [gifsicle],
+        {
+          encoding: "utf8",
+          input: buf,
+          timeout: opts.timeout,
+        }
+      )
     ).stdout;
 
     const frameCycle = Math.ceil(frameCount / opts.max_frame);
@@ -35,11 +40,15 @@ module.exports = (opts) => async (buf) => {
     }
 
     const delaySecond = (
-      await execa("./src/get_delay_second.sh", [], {
-        encoding: "utf8",
-        input: buf,
-        timeout: opts.timeout,
-      })
+      await execa(
+        path.resolve(__filename, "../get_delay_second.sh"),
+        [gifsicle],
+        {
+          encoding: "utf8",
+          input: buf,
+          timeout: opts.timeout,
+        }
+      )
     ).stdout;
 
     args.push("--delay");
