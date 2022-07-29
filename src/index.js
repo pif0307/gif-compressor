@@ -53,7 +53,11 @@ module.exports = (opts) => async (buf) => {
 
     args.push("--delay");
 
-    args.push(delaySecond * frameCycle);
+    if (opts.max_delay && delaySecond * frameCycle > opts.max_delay) {
+      args.push(opts.max_delay);
+    } else {
+      args.push(delaySecond * frameCycle);
+    }
 
     for (var i = 0; i < frameCount - 1; i++) {
       if (i % frameCycle == 0) {
