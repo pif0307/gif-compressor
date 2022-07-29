@@ -7,17 +7,17 @@
 ## Install
 
 ```
-$ npm install @gumlet/gif-resize
+$ npm install gif-frame-reducer
 ```
 
 ## Usage
 
 ```js
-const gifResize = require("@gumlet/gif-resize");
+const gifFrameReducer = require("gif-frame-reducer");
 const fs = require("fs");
 
 const buf = fs.readFileSync("avocado.gif");
-gifResize({
+gifFrameReducer({
   width: 200,
   max_frame: 10,
 })(buf).then((data) => {
