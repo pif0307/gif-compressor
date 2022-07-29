@@ -1,90 +1,86 @@
-'use strict';
-const execa = require('execa');
-const gifsicle = require('gifsicle');
-const isGif = require('is-gif');
+"use strict";
+const execa = require("execa");
+const gifsicle = require("gifsicle");
+const isGif = require("is-gif");
 
-module.exports = opts => async buf => {
-	opts = Object.assign({
-		resize_method: "lanczos3",
-		optimizationLevel: 2,
-		timeout: 0
-	}, opts);
+module.exports = (opts) => async (buf) => {
+  opts = Object.assign(
+    {
+      timeout: 0,
+    },
+    opts
+  );
 
-	if (!Buffer.isBuffer(buf)) {
-		return Promise.reject(new TypeError('Expected a buffer'));
-	}
+  if (!isGif(buf)) {
+    return buf;
+  }
 
-	if (!isGif(buf)) {
-		return Promise.resolve(buf);
-	}
+  const args = ["--no-warnings", "--no-app-extensions"];
 
-	const args = ['--no-warnings', '--no-app-extensions'];
+  if (opts.max_frame) {
+    args.push("--unoptimize");
 
-	if (opts.interlaced) {
-		args.push('--interlace');
-	}
+    const frameCount = (
+      await execa("./src/get_frame_count.sh", [], {
+        encoding: "utf8",
+        input: buf,
+        timeout: opts.timeout,
+      })
+    ).stdout;
 
-	if (opts.optimizationLevel) {
-		args.push(`--optimize=${opts.optimizationLevel}`);
-	}
+    const frameCycle = Math.ceil(frameCount / opts.max_frame);
 
-	if (opts.colors) {
-		args.push(`--colors=${opts.colors}`);
-	}
+    if (frameCycle == 0) {
+      frameCycle = 1;
+    }
 
-	if (opts.lossy) {
-		args.push(`--lossy=${opts.lossy}`);
-	}
+    const delaySecond = (
+      await execa("./src/get_delay_second.sh", [], {
+        encoding: "utf8",
+        input: buf,
+        timeout: opts.timeout,
+      })
+    ).stdout;
 
-	if (opts.resize_method) {
-		args.push(`--resize-method=${opts.resize_method}`);
-	}
+    args.push("--delay");
 
-	if (opts.gamma) {
-		args.push(`--gamma=${opts.gamma}`);
-	}
+    args.push(delaySecond * frameCycle);
 
-	if (opts.crop) {
-		args.push(`--crop=${opts.crop[0]},${opts.crop[1]}+${opts.crop[2]}x${opts.crop[3]}`);
-	}
+    for (var i = 0; i < frameCount - 1; i++) {
+      if (i % frameCycle == 0) {
+        args.push(`#${i}`);
+      }
+    }
+  }
 
-	if (opts.flip_h) {
-		args.push(`--flip-horizontal`);
-	}
+  if (opts.width) {
+    if (!opts.stretch) {
+      args.push(`--resize-fit-width=${opts.width}`);
+    } else {
+      args.push(`--resize-width=${opts.width}`);
+    }
+  }
 
-	if (opts.flip_v) {
-		args.push(`--flip-vertical`);
-	}
+  if (opts.height) {
+    if (!opts.stretch) {
+      args.push(`--resize-fit-height=${opts.height}`);
+    } else {
+      args.push(`--resize-height=${opts.height}`);
+    }
+  }
 
-	if (opts.rotate) {
-		if(opts.rotate == 90) args.push(`--rotate-90`);
-		if(opts.rotate == 180) args.push(`--rotate-180`);
-		if(opts.rotate == 270) args.push(`--rotate-270`);
-	}
+  args.push("--output", "-");
 
-	if(opts.width){
-		if(!opts.stretch){
-			args.push(`--resize-fit-width=${opts.width}`);
-		} else {
-			args.push(`--resize-width=${opts.width}`);
-		}
-	}
+  try {
+    const process = await execa(gifsicle, args, {
+      encoding: null,
+      input: buf,
+      timeout: opts.timeout,
+    });
 
-	if(opts.height){
-		if(!opts.stretch){
-			args.push(`--resize-fit-height=${opts.height}`);
-		} else {
-			args.push(`--resize-height=${opts.height}`);
-		}
-	}
-
-	args.push('--output', "-");
-
-	try {
-		const gif_output = await execa(gifsicle, args, {input: buf, encoding: null, timeout: opts.timeout});
-		return gif_output.stdout;
-	} catch (error) {
-		error.message = error.stderr || error.message;
-		throw error;
-	}
+    return process.stdout;
+  } catch (error) {
+    error.message = error.stderr || error.message;
+    throw error;
+  }
 };
