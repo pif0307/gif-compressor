@@ -16,7 +16,7 @@
   ],
   "main": "src/index.js",
   "keywords": [
-    "compress",
+    "nodejs",
     "gif"
   ],
   "dependencies": {
