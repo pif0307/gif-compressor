@@ -65,6 +65,11 @@ This is process timeout in milliseconds. If set to positive number, it will thro
 Type: `number`<br>
 Default: `null`
 
+##### max_delay
+
+Type: `number`<br>
+Default: `null`
+
 ## License
 
-MIT © [Gumlet](https://github.com/gumlet)
+MIT
