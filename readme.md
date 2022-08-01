@@ -1,8 +1,6 @@
 # gif-frame-reducer
 
-[![Build Status](https://github.com/gumlet/gif-resize/workflows/Node%20CI/badge.svg)](https://github.com/gumlet/gif-resize/actions)
-
-> Nodejs plugin for [Gifsicle](https://www.lcdf.org/gifsicle/)
+> Nodejs plugin to reduce gif frames by [Gifsicle](https://www.lcdf.org/gifsicle/)
 
 ## Install
 
