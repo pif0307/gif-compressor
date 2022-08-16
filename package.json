@@ -1,6 +1,6 @@
 {
   "name": "gif-frame-reducer",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Node js plugin to reduce gif file size by deleting frames",
   "license": "MIT",
   "repository": {
