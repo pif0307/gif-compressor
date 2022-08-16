@@ -27,6 +27,7 @@ declare module "gif-frame-reducer" {
      */
     max_frame?: number;
     max_delay?: number;
+    min_delay?: number;
   }): (
     /**
      * Buffer to optimize / resize.

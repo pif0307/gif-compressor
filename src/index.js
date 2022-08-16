@@ -55,6 +55,8 @@ module.exports = (opts) => async (buf) => {
 
     if (opts.max_delay && delaySecond * frameCycle > opts.max_delay) {
       args.push(opts.max_delay);
+    } else if (opts.min_delay && delaySecond * frameCycle < opts.min_delay) {
+      args.push(opts.min_delay);
     } else {
       args.push(delaySecond * frameCycle);
     }
